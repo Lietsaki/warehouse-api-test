@@ -3,19 +3,13 @@ const mongoose = require('mongoose')
 require('dotenv').config({ path: `${__dirname}/config.env` })
 const app = require('./app')
 
-// Connect to the db - The passed options deal with mongoose deprecation warnings
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true
-})
+// Connect to our MongoDB database
+mongoose.connect(process.env.DATABASE_URL)
 
 const port = process.env.PORT
 const db = mongoose.connection
 db.on('error', (err) => console.log(err))
 db.once('open', () => console.log('Connected to DB'))
-
-console.log('hello')
 
 const server = app.listen(port, () =>
   console.log(`Server started on port ${port}...`)

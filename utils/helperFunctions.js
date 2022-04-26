@@ -1,3 +1,3 @@
 exports.capitalizeStr = (string) => {
-  return string.toUpperCase() + string.substring(1).toLowerCase()
+  return string[0].toUpperCase() + string.substring(1).toLowerCase()
 }

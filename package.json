@@ -4,7 +4,7 @@
   "description": "A simple warehouse API with two entities: article and product.",
   "main": "app.js",
   "scripts": {
-    "start-dev": "SET NODE_ENV=development&& nodemon app.js",
+    "start-dev": "SET NODE_ENV=development&& nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

@@ -1,13 +1,19 @@
 const mongoose = require('mongoose')
 
-const articleModel = new mongoose.Schema(
+const articleSchema = new mongoose.Schema(
   {
-    name: String,
-    stock: Number,
+    name: {
+      type: String,
+      required: true
+    },
+    stock: {
+      type: Number,
+      required: true
+    },
     last_updated: Number,
     last_updated_by: String
   },
   { strict: true, versionKey: false }
 )
 
-module.exports = mongoose.model('Article', articleModel)
+module.exports = mongoose.model('Article', articleSchema)

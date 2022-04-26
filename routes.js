@@ -1,47 +1,37 @@
 const express = require('express')
-// const {
-//   verifyJWT,
-//   verifyAppVersioningToken
-// } = require('../controllers/authController')
+const {
+  verifyJWT,
+  checkEmail,
+  registerUser,
+  loginUser
+} = require('./controllers/authController')
+const { validateUserData } = require('./utils/validators')
 const {
   catchAsync,
   getEntity,
-  //   getOne,
+  getOne,
   getAll,
-  createOne
-  //   updateOne,
-  //   deleteOne,
-  //   redirectRoute
+  createOne,
+  updateOne,
+  deleteOne,
+  redirectRoute
 } = require('./controllers/handlerFactory')
 
-const crudRouter = express.Router()
-const authRouter = express.Router()
+const router = express.Router()
 
-// router.post(
-//     '/register',
-//     verifyJWT,
-//     verifyAssignedRole,
-//     checkEmail,
-//     registerUser,
-//     sendUserCredentials,
-//     returnResponse
-//   )
+// AUTH ROUTES
+router.post('/register', validateUserData, checkEmail, registerUser)
+router.post('/login', loginUser)
+router.post('/user', redirectRoute('/register'))
 
-//   router.post('/login', loginUser)
-
-// Create user (redirect to register route) - Do not place this route below POST '/:entity'
-//router.post('/user', redirectRoute('/user/register'))
-
-crudRouter.get('/:entity', getEntity, catchAsync(getAll))
-
-// // Get all with filter
-// router.get('/:entity/filter', getEntity, getAllWithFilter)
-// router.get('/:entity/:id', getEntity, getEntityItem, getOne)
+// CRUD ROUTES
+router.get('/:entity', getEntity, catchAsync(getAll))
+router.get('/:entity/:id', getEntity, catchAsync(getOne))
 
 // All routes require a JWT in order to be accessed from this point
-// router.use(verifyJWT)
-crudRouter.post('/:entity', getEntity, catchAsync(createOne))
-// router.patch('/:entity/:id', getEntity, updateOne, returnResponse)
-// router.delete('/:entity/:id', getEntity, deleteOne)
+router.use(verifyJWT)
+router.post('/:entity', getEntity, catchAsync(createOne))
+router.patch('/:entity/:id', getEntity, catchAsync(updateOne))
+router.delete('/:entity/:id', getEntity, catchAsync(deleteOne))
 
-module.exports = { crudRouter, authRouter }
+module.exports = router

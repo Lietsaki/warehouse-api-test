@@ -1,11 +1,8 @@
 require('dotenv').config({ path: `${__dirname}/config.env` })
 const express = require('express')
-
 const cors = require('cors')
 const morgan = require('morgan')
-
-// Import routes
-const { crudRouter, authRouter } = require('./routes')
+const router = require('./routes')
 
 const app = express()
 // Trust proxies (for Heroku)
@@ -24,9 +21,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
 
-// Main route middlewares
-app.use('/', crudRouter)
-app.use('/user', authRouter)
+// Route middleware
+app.use('/v1', router)
 
 // Catch all route. Whatever we pass into next, express will assume it's an error.
 app.all('*', (req, res, next) => {

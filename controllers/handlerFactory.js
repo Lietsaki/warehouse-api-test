@@ -9,13 +9,11 @@ const models = {
   User
 }
 
-exports.catchAsync = (req, res, next) => async (fn) => {
-  console.log(req, res, next)
-
+exports.catchAsync = (fn) => async (req, res, next) => {
   try {
     await fn(req, res, next)
-  } catch (err) {
-    return res.status(500).json({ message: err.message })
+  } catch (error) {
+    return res.status(500).json({ error: error.message || error })
   }
 }
 
@@ -65,7 +63,7 @@ exports.updateOne = async (req, res, next) => {
       $set: {
         ...req.body,
         last_updated: Date.now(),
-        last_updated_by: req.userId
+        last_updated_by: req.user_id
       }
     },
     { upsert: true }
@@ -75,6 +73,15 @@ exports.updateOne = async (req, res, next) => {
 }
 
 exports.deleteOne = async (req, res, next) => {
+  if (req.params.entity === User) {
+    const user = await User.findById(req.params.id).lean()
+    if (user._id !== req.user_id) {
+      return res
+        .status(403)
+        .json({ message: 'You are not authorized to delete other users' })
+    }
+  }
+
   await req.entity.deleteOne({ _id: req.params.id })
   res.status(201).json({ message: 'Succesfully deleted item.' })
 }
