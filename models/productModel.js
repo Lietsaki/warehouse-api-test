@@ -7,13 +7,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    contain_articles: {
-      type: Array,
-      validate: {
-        validator: (value) => Array.isArray(value) && value.length > 0,
-        message: (props) => `${props.value} must be an array!`
-      }
-    },
+    contain_articles: Array,
     last_updated: Number,
     last_updated_by: String
   },

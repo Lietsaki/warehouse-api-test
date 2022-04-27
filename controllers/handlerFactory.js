@@ -13,6 +13,15 @@ exports.catchAsync = (fn) => async (req, res, next) => {
   try {
     await fn(req, res, next)
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const errors = {}
+
+      Object.keys(error.errors).forEach((key) => {
+        errors[key] = error.errors[key].message
+      })
+
+      return res.status(400).send(errors)
+    }
     return res.status(500).json({ error: error.message || error })
   }
 }
@@ -57,31 +66,21 @@ exports.createOne = async (req, res) => {
 }
 
 exports.updateOne = async (req, res, next) => {
-  const updated_item = await req.entity.updateOne(
-    { _id: req.params.id },
-    {
-      $set: {
-        ...req.body,
-        last_updated: Date.now(),
-        last_updated_by: req.user_id
-      }
-    },
-    { upsert: true }
-  )
+  const item = await req.entity.findById(req.params.id)
+  if (!item) return res.status(404).json({ message: 'Item not found' })
 
-  return res.status(201).json({ message: 'success', updated_item })
+  Object.keys(req.body).forEach((key) => {
+    item[key] = req.body[key]
+  })
+
+  await item.save()
+
+  return res
+    .status(201)
+    .json({ message: 'Successfully updated document', item })
 }
 
 exports.deleteOne = async (req, res, next) => {
-  if (req.params.entity === User) {
-    const user = await User.findById(req.params.id).lean()
-    if (user._id !== req.user_id) {
-      return res
-        .status(403)
-        .json({ message: 'You are not authorized to delete other users' })
-    }
-  }
-
   await req.entity.deleteOne({ _id: req.params.id })
   res.status(201).json({ message: 'Succesfully deleted item.' })
 }
@@ -89,3 +88,16 @@ exports.deleteOne = async (req, res, next) => {
 // NOTE: The 307 HTTP code is used to preserve the type of request, if we omit it, a GET request will be made.
 exports.redirectRoute = (route_to_redirect_to) => async (req, res, next) =>
   res.redirect(307, route_to_redirect_to)
+
+exports.deleteUser = async (req, res, next) => {
+  const user = await User.findById(req.params.id).lean().select('_id')
+
+  if (!user || user._id.toString() !== req.user_id) {
+    return res
+      .status(403)
+      .json({ message: 'You are not authorized to delete other users' })
+  }
+
+  await User.deleteOne({ _id: req.params.id })
+  res.status(201).json({ message: 'Succesfully deleted your account.' })
+}

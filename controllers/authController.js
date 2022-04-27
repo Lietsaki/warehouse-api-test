@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const User = require('../models/userModel')
 
-exports.verifyJWT = function (req, res, next) {
+exports.verifyJWT = async (req, res, next) => {
   // We expect an authorization header with the form of: Authorization: <type> <token>,
   if (!req.header('Authorization')) {
     return res
@@ -14,6 +14,12 @@ exports.verifyJWT = function (req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
+    const user = await User.findById(payload._id).lean().select('_id')
+    if (!user) {
+      return res
+        .status(500)
+        .json({ error: 'User not found, please log in again.' })
+    }
     req.user_id = payload._id
     next()
   } catch (err) {
@@ -21,7 +27,7 @@ exports.verifyJWT = function (req, res, next) {
   }
 }
 
-exports.checkEmail = async (req, res, next) => {
+exports.checkEmailDuplicity = async (req, res, next) => {
   const email_exists = await User.findOne({ email: req.body.email }).lean()
 
   if (email_exists) {
@@ -36,12 +42,9 @@ exports.registerUser = async (req, res, next) => {
     last_updated: Date.now()
   })
 
-  // Do not send the password back in the response (even when it's hashed in pre-save middleware)
-  delete created_user.password
-
   return res.status(201).json({
     message: `User created successfully.`,
-    created_user
+    created_user: { ...created_user._doc, password: undefined }
   })
 }
 
