@@ -108,3 +108,23 @@ exports.deleteUser = async (req, res, next) => {
   await User.deleteOne({ _id: req.params.id })
   res.status(201).json({ message: 'Succesfully deleted your account.' })
 }
+
+exports.sellProduct = async (req, res, next) => {
+  const product = await Product.findById({ _id: req.params.id }).populate(
+    'contain_articles.art_id'
+  )
+  if (!product) return res.status(404).json({ message: 'Product not found' })
+
+  const promises = [Product.deleteOne({ _id: req.params.id })]
+
+  for (const contained_art of product.contain_articles) {
+    contained_art.art_id.stock -= contained_art.amount_of
+    promises.push(contained_art.art_id.save())
+  }
+
+  await Promise.all(promises)
+
+  return res
+    .status(201)
+    .json({ message: 'Product sold. Article stock has been subtracted.' })
+}

@@ -20,7 +20,8 @@ const {
   updateOne,
   deleteOne,
   redirectRoute,
-  deleteUser
+  deleteUser,
+  sellProduct
 } = require('./controllers/handlerFactory')
 
 const router = express.Router()
@@ -56,6 +57,7 @@ router.patch(
   validateArticleExistence,
   catchAsync(updateOne)
 )
+router.delete('/product/sell/:id', catchAsync(sellProduct))
 
 router.post('/:entity', getEntity, catchAsync(createOne))
 router.patch('/:entity/:id', getEntity, catchAsync(updateOne))
