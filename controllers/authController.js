@@ -60,7 +60,8 @@ exports.loginUser = async (req, res) => {
 
   // 2) Check if the password is valid
   const valid_pass = await bcrypt.compare(req.body.password, user.password)
-  if (!valid_pass) return res.status(401).json({ error: 'Invalid password' })
+  if (!valid_pass)
+    return res.status(401).json({ error: 'Wrong email or password.' })
 
   // 3) Sign a JWT with the user id as payload and send it as a header and in the response as well
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)

@@ -37,7 +37,7 @@ exports.validateMinArtNumber = (req, res, next) => {
 
   if (is_falsy) {
     return res.status(400).json({
-      message: `'contain articles' array is missing. A product must be composed of at least one article.`
+      message: `'contain_articles' array is missing. A product must be composed of at least one article.`
     })
   }
 
@@ -59,7 +59,9 @@ exports.validateArticleStructure = (req, res, next) => {
     art_id: 'string'
   }
 
-  req.body.contain_articles = req.body.contain_articles.map((article) => {
+  const filtered_arts = []
+
+  for (const article of req.body.contain_articles) {
     const filtered_art = {}
 
     for (const key of Object.keys(contained_article)) {
@@ -73,8 +75,8 @@ exports.validateArticleStructure = (req, res, next) => {
       filtered_art[key] = article[key]
     }
 
-    return filtered_art
-  })
+    filtered_arts.push(filtered_art)
+  }
 
   return next()
 }
@@ -85,20 +87,26 @@ exports.validateArticleExistence = async (req, res, next) => {
   }
 
   const existing_arts_promise = req.body.contain_articles.map((article) =>
-    Article.find({ _id: article.art_id }).lean().include('_id')
+    Article.findOne({ _id: article.art_id }).lean().select('_id')
   )
 
   try {
     const existing_arts = await Promise.all(existing_arts_promise)
-    existing_arts.forEach((art, index) => {
-      if (art === null) {
+
+    for (let i = 0; i < existing_arts.length; i++) {
+      if (existing_arts[i] === null) {
         return res.status(400).json({
           message: 'Provided article id was not found.',
-          article_not_found: req.body.contain_articles[index]
+          article_not_found: req.body.contain_articles[i]
         })
       }
-    })
+    }
   } catch (error) {
+    if (error.kind === 'ObjectId' && error.path === '_id') {
+      return res
+        .status(500)
+        .json({ error: 'Invalid ID received.', id: error.stringValue })
+    }
     return res.status(500).json({ error: error.message || error })
   }
 

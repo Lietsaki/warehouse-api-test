@@ -1,13 +1,18 @@
-const mongoose = require('mongoose')
+const { mongoose, Schema } = require('mongoose')
 
-// ! use a pre-save hook to validate the structure of contain articles
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true
     },
-    contain_articles: Array,
+    contain_articles: [
+      {
+        art_id: { type: Schema.Types.ObjectId, ref: 'Article' },
+        amount_of: Number,
+        _id: false
+      }
+    ],
     last_updated: Number,
     last_updated_by: String
   },

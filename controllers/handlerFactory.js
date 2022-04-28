@@ -42,13 +42,18 @@ exports.getEntity = (req, res, next) => {
 }
 
 exports.getOne = async (req, res) => {
-  const item = await req.entity.findById(req.params.id).lean()
+  let query = req.entity.findById(req.params.id).lean()
+  if (req.query.populate) query = query.populate(req.query.populate)
+  const item = await query
+
   if (!item) return res.status(404).json({ message: 'Item not found.' })
   return res.status(200).json(item)
 }
 
 exports.getAll = async (req, res) => {
-  const entity_items = await req.entity.find().lean()
+  let query = req.entity.find().lean()
+  if (req.query.populate) query = query.populate(req.query.populate)
+  const entity_items = await query
 
   return res.status(200).json({
     results_number: entity_items.length,
@@ -74,10 +79,12 @@ exports.updateOne = async (req, res, next) => {
   })
 
   await item.save()
+  delete item._doc.password
 
-  return res
-    .status(201)
-    .json({ message: 'Successfully updated document', item })
+  return res.status(201).json({
+    message: 'Successfully updated document',
+    item
+  })
 }
 
 exports.deleteOne = async (req, res, next) => {
