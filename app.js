@@ -6,7 +6,7 @@ const router = require('./routes')
 
 const app = express()
 // Trust proxies (for Heroku)
-app.enable('trust proxy')
+// app.enable('trust proxy')
 
 // Middleware
 app.use(cors())
