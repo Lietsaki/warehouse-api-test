@@ -19,6 +19,7 @@
     "arrow-body-style": 0,
     "valid-typeof": "off",
     "no-plusplus": "off",
+    "no-continue": "off",
     "no-restricted-syntax": 0,
     "camelcase": 0
   },

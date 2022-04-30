@@ -118,6 +118,8 @@ exports.sellProduct = async (req, res, next) => {
   const promises = [Product.deleteOne({ _id: req.params.id })]
 
   for (const contained_art of product.contain_articles) {
+    if (contained_art.art_id === null) continue
+    console.log(contained_art)
     contained_art.art_id.stock -= contained_art.amount_of
     promises.push(contained_art.art_id.save())
   }
