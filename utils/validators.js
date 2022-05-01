@@ -1,5 +1,6 @@
 const Article = require('../models/articleModel')
 const Product = require('../models/productModel')
+const User = require('../models/userModel')
 
 const isValidEmail = (str) => {
   const email_regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
@@ -138,6 +139,20 @@ exports.performProductValidation = async (req, res, next) => {
     return res
       .status(article_structure_existence.code)
       .json(article_structure_existence.body)
+  }
+
+  return next()
+}
+
+exports.validateInsertMany = async (req, res, next) => {
+  if (req.entity === User) {
+    return res
+      .status(400)
+      .json({ message: 'You cannot insert users in batch!' })
+  }
+
+  if (!req.body.items) {
+    return res.status(400).json({ message: "'items' array is missing!" })
   }
 
   return next()

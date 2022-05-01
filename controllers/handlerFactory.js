@@ -72,9 +72,6 @@ exports.createOne = async (req, res) => {
 
 exports.insertMany = async (req, res) => {
   let docs = req.body.items
-  if (!req.body.items) {
-    return res.status(400).json({ message: "'items' array is missing!" })
-  }
 
   docs = docs
     .filter((doc) => !!doc)

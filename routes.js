@@ -8,7 +8,8 @@ const {
 const {
   validateUserData,
   performProductValidation,
-  validateManyProducts
+  validateManyProducts,
+  validateInsertMany
 } = require('./utils/validators')
 const {
   catchAsync,
@@ -49,9 +50,13 @@ router.post('/product/insertMany', validateManyProducts, catchAsync(insertMany))
 router.patch('/product/:id', performProductValidation, catchAsync(updateOne))
 router.delete('/product/sell/:id', catchAsync(sellProduct))
 
-router.post('/article/insertMany', getEntity, catchAsync(insertMany))
-
 router.post('/:entity', getEntity, catchAsync(createOne))
+router.post(
+  '/:entity/insertMany',
+  getEntity,
+  validateInsertMany,
+  catchAsync(insertMany)
+)
 router.patch('/:entity/:id', getEntity, catchAsync(updateOne))
 router.delete('/:entity/:id', getEntity, catchAsync(deleteOne))
 
