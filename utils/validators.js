@@ -95,12 +95,15 @@ const validateArticleExistence = async (articles_to_find) => {
     if (error.kind === 'ObjectId' && error.path === '_id') {
       return {
         code: 500,
-        body: { error: 'Invalid article _id received.', id: error.stringValue }
+        body: {
+          message: 'Invalid article _id received.',
+          id: error.stringValue
+        }
       }
     }
     return {
       code: 500,
-      body: { error: error.message || error }
+      body: { message: error.message || error }
     }
   }
 

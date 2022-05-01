@@ -7,7 +7,7 @@ exports.verifyJWT = async (req, res, next) => {
   if (!req.header('Authorization')) {
     return res
       .status(401)
-      .json({ error: 'Missing Authorization header. Access denied.' })
+      .json({ message: 'Missing Authorization header. Access denied.' })
   }
 
   const token = req.header('Authorization').replace('Bearer ', '')
@@ -18,12 +18,12 @@ exports.verifyJWT = async (req, res, next) => {
     if (!user) {
       return res
         .status(500)
-        .json({ error: 'User not found, please log in again.' })
+        .json({ message: 'User not found, please log in again.' })
     }
     req.user_id = payload._id
     next()
   } catch (err) {
-    res.status(400).json({ error: 'Invalid auth token' })
+    res.status(400).json({ message: 'Invalid auth token' })
   }
 }
 
@@ -61,7 +61,7 @@ exports.loginUser = async (req, res) => {
   // 2) Check if the password is valid
   const valid_pass = await bcrypt.compare(req.body.password, user.password)
   if (!valid_pass)
-    return res.status(401).json({ error: 'Wrong email or password.' })
+    return res.status(401).json({ message: 'Wrong email or password.' })
 
   // 3) Sign a JWT with the user id as payload and send it as a header and in the response as well
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
