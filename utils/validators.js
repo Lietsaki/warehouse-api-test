@@ -86,7 +86,7 @@ const validateArticleExistence = async (articles_to_find) => {
           code: 404,
           body: {
             message: 'Provided article id was not found.',
-            article_not_found: articles_to_find.contain_articles[i]
+            article_not_found: articles_to_find[i].art_id
           }
         }
       }
