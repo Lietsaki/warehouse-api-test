@@ -7,9 +7,8 @@ const {
 } = require('./controllers/authController')
 const {
   validateUserData,
-  validateMinArtNumber,
-  validateArticleStructure,
-  validateArticleExistence
+  performProductValidation,
+  validateManyProducts
 } = require('./utils/validators')
 const {
   catchAsync,
@@ -17,6 +16,7 @@ const {
   getOne,
   getAll,
   createOne,
+  insertMany,
   updateOne,
   deleteOne,
   redirectRoute,
@@ -43,21 +43,13 @@ router.get('/:entity/:id', getEntity, catchAsync(getOne))
 // All routes require a JWT in order to be accessed from this point
 router.use(verifyJWT)
 router.delete('/user/:id', catchAsync(deleteUser))
-router.post(
-  '/product',
-  validateMinArtNumber,
-  validateArticleStructure,
-  validateArticleExistence,
-  catchAsync(createOne)
-)
-router.patch(
-  '/product/:id',
-  validateMinArtNumber,
-  validateArticleStructure,
-  validateArticleExistence,
-  catchAsync(updateOne)
-)
+
+router.post('/product', performProductValidation, catchAsync(createOne))
+router.post('/product/insertMany', validateManyProducts, catchAsync(insertMany))
+router.patch('/product/:id', performProductValidation, catchAsync(updateOne))
 router.delete('/product/sell/:id', catchAsync(sellProduct))
+
+router.post('/article/insertMany', getEntity, catchAsync(insertMany))
 
 router.post('/:entity', getEntity, catchAsync(createOne))
 router.patch('/:entity/:id', getEntity, catchAsync(updateOne))

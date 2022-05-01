@@ -70,6 +70,26 @@ exports.createOne = async (req, res) => {
   return res.status(201).json({ message: 'success', created_item: results })
 }
 
+exports.insertMany = async (req, res) => {
+  let docs = req.body.items
+  if (!req.body.items) {
+    return res.status(400).json({ message: "'items' array is missing!" })
+  }
+
+  docs = docs
+    .filter((doc) => !!doc)
+    .map((item) => {
+      return {
+        ...item,
+        last_updated: Date.now(),
+        last_updated_by: req.user_id
+      }
+    })
+
+  const results = await req.entity.insertMany(docs)
+  return res.status(201).json({ message: 'success', created_items: results })
+}
+
 exports.updateOne = async (req, res, next) => {
   const item = await req.entity.findById(req.params.id)
   if (!item) return res.status(404).json({ message: 'Item not found' })
@@ -119,7 +139,6 @@ exports.sellProduct = async (req, res, next) => {
 
   for (const contained_art of product.contain_articles) {
     if (contained_art.art_id === null) continue
-    console.log(contained_art)
     contained_art.art_id.stock -= contained_art.amount_of
     promises.push(contained_art.art_id.save())
   }
