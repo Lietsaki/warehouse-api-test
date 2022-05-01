@@ -53,18 +53,15 @@ const validateMinArtNumber = (product) => {
 }
 
 const validateArticleStructure = (product) => {
-  const contained_article = {
-    amount_of: 'number',
-    art_id: 'string'
-  }
+  const contained_article = ['amount_of', 'art_id']
 
   for (const article of product.contain_articles) {
-    for (const key of Object.keys(contained_article)) {
-      if (typeof article[key] !== contained_article[key]) {
+    for (const key of contained_article) {
+      if (!article[key]) {
         return {
           code: 400,
           body: {
-            message: 'Malformed contained article.',
+            message: `Malformed contained article. A required property is missing or falsy (and it shouldn't be).`,
             malformed_article: article
           }
         }
